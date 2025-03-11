@@ -1,0 +1,107 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'Frontend/**'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read  
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v4
+      with:
+        ref: main
+          
+    - name: Skip for Forks
+      if: github.event.pull_request.head.repo.fork == true
+      run: echo "Skipping paths-filter for forks"
+
+    - name: Filter paths
+      id: filter
+      uses: dorny/paths-filter@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}  
+        filters: |
+          Frontend:
+            - 'Frontend/**'
+    
+    - name: Debug Node.js version
+      run: echo "Using Node.js version ${{ matrix.node-version }}"
+
+    - name: Use Node.js version
+      uses: actions/setup-node@v4
+      with:
+        cache-dependency-path: Frontend/package-lock.json
+        node-version: "22.x"
+        cache: "npm"
+    
+    - name: Debug Frontend directory
+      run: ls -la Frontend
+
+    - name: Install dependencies
+      working-directory: Frontend
+      run: |
+        if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
+          npm ci
+        else
+          npm install
+        fi
+      
+    - name: Build project
+      run: npm run build --if-present
+      working-directory: Frontend
+
+    # - name: Run tests
+    #   run: npm test
+    #   working-directory: WebUI
+    # - name: Login to DockerHub
+    #   uses: docker/login-action@v2
+    #   with:
+    #     username: ${{ secrets.DOCKER_USERNAME }}
+    #     password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # - name: Generate image tag
+    #   id: tag
+    #   run: |
+    #      SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)
+    #      echo "IMAGE_TAG=${SHORT_SHA}" >> $GITHUB_ENV
+
+    # - name: Build and Push Docker Image
+    #   uses: mr-smithers-excellent/docker-build-push@v4
+    #   with:
+    #       image: koryhub/web-ui
+    #       tag: |
+    #           ${{ env.IMAGE_TAG }}
+    #       registry: docker.io
+    #       dockerfile: Frontend/Dockerfile
+    #       directory: Frontend
+
+    # - name: Update Kubernetes manifests
+    #   if: github.ref == 'refs/heads/integration'
+    #   run: |
+    #       cd CloudInfra
+    #       sed -i "s|koryhub/web-ui:.*|koryhub/web-ui:${IMAGE_TAG}|g" web-ui.yaml
+
+    # - name: Commit and push changes
+    #   if: github.ref == 'refs/heads/integration'
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #         git config --global user.name 'GitHub Actions'
+    #         git config --global user.email 'actions@github.com'
+    #         git add CloudInfra/web-ui.yaml
+    #         git commit -m "Update WebUI image to ${GITHUB_SHA}"
+    #         git push origin integration
