@@ -35,7 +35,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}  
         filters: |
-          WebUI:
+          Frontend:
             - 'Frontend/**'
     
     - name: Debug Node.js version
