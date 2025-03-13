@@ -13,9 +13,19 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // Add your frontend URLs
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: [
+    'https://job-app-flame-phi.vercel.app', // Your frontend URL
+    'http://localhost:3000', // Local development
+    'https://job-qcpfa8zd4-balacherans-projects.vercel.app/'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin', 
+    'X-Requested-With', 
+    'Content-Type', 
+    'Accept', 
+    'Authorization'
+  ]
 }));
 app.use(express.json());
 
