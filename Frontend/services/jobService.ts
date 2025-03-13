@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/jobs';
+const API_BASE_URL = 'https://1d9a-106-51-25-220.ngrok-free.app/api/jobs';
 
 export interface JobDetails {
   _id?: string;
@@ -97,9 +97,9 @@ class JobService {
   async deleteJob(id: string): Promise<void> {
     try {
       await axios.delete(`${API_BASE_URL}/${id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting job:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Failed to delete job');
     }
   }
 }

@@ -123,17 +123,18 @@ class JobController {
   async deleteJob(req, res) {
     try {
       const deletedJob = await Job.findByIdAndDelete(req.params.id);
-
+  
       if (!deletedJob) {
         return res.status(404).json({
           success: false,
           message: 'Job not found'
         });
       }
-
+  
       res.json({
         success: true,
-        message: 'Job deleted successfully'
+        message: 'Job deleted successfully',
+        data: deletedJob
       });
     } catch (error) {
       res.status(500).json({

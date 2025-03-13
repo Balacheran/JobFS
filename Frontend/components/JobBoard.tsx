@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Flex } from '@mantine/core';
 import JobCard from './JobCard';
 import { JobDetails } from '@/services/jobService';
@@ -7,8 +8,17 @@ interface JobBoardProps {
 }
 
 export default function JobBoard({ jobs }: JobBoardProps) {
+  const [jobList, setJobList] = useState<JobDetails[]>(jobs);
+
+  // Handle job deletion
+  const handleDeleteJob = (jobId: string) => {
+    setJobList(prevJobs => 
+      prevJobs.filter(job => job._id !== jobId)
+    );
+  };
+
   // Handle case when jobs array is empty
-  if (!jobs || jobs.length === 0) {
+  if (!jobList || jobList.length === 0) {
     return (
       <Flex
         direction="row"
@@ -38,10 +48,11 @@ export default function JobBoard({ jobs }: JobBoardProps) {
         margin: '32px auto 0',
       }}
     >
-      {jobs.map((job) => (
+      {jobList.map((job) => (
         <JobCard 
           key={job._id}
           {...job}
+          // onDelete={handleDeleteJob}
         />
       ))}
     </Flex>
