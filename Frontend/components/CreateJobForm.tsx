@@ -115,7 +115,7 @@ export default function CreateJobForm({ opened, onClose, onSubmit }: CreateJobFo
                 <Select
                   label="Location"
                   placeholder="Select Location"
-                  data={['Chennai', 'Madurai', 'Kochi']}
+                  data={['Onsite', 'Offsite']}
                   value={field.value}
                   onChange={field.onChange}
                   error={errors.location?.message}
@@ -127,14 +127,14 @@ export default function CreateJobForm({ opened, onClose, onSubmit }: CreateJobFo
 
             <Group mt="md" grow>
               <TextInput
-                label="Minimum Salary"
+                label="Salary Range"
                 placeholder="₹0"
                 type="number"
                 {...register('minSalary', { required: 'Minimum salary is required' })}
                 error={errors.minSalary?.message}
               />
               <TextInput
-                label="Maximum Salary"
+                label=" "
                 placeholder="₹12,00,000"
                 type="number"
                 {...register('maxSalary', { required: 'Maximum salary is required' })}

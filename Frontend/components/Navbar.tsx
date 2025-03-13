@@ -1,4 +1,4 @@
-import { Box, rem, Image, Anchor, Burger } from '@mantine/core';
+import { Box, rem, Image, Anchor, Burger, TextInput, Select, Button, Flex, Text, RangeSlider  } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 
@@ -19,17 +19,16 @@ export default function Navbar({ onCreateJobClick }: NavbarProps) {
 
   return (
     <Box
-  component="header"
-  w="100%"
-  bg="white"
-  style={{
-    boxShadow: '0px 0px 14px 0px #C6BFBF40',
-    position: 'relative',
-    height: rem(214),
-    padding: 0,
-  }}
->
-
+      component="header"
+      w="100%"
+      bg="white"
+      style={{
+        boxShadow: '0px 0px 14px 0px #C6BFBF40',
+        position: 'relative',
+        height: rem(214),
+        padding: 0,
+      }}
+    >
       {/* Navbar Box */}
       <Box
         w="100%"
@@ -63,18 +62,9 @@ export default function Navbar({ onCreateJobClick }: NavbarProps) {
           <Box
             w={rem(44)}
             h={rem(44.6769)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
+            style={{ display: 'flex', alignItems: 'center' }}
           >
-            <Image
-              src="/assets/Group.png"
-              alt="Logo"
-              width="100%"
-              height="100%"
-              fit="contain"
-            />
+            <Image src="/assets/Group.png" alt="Logo" width="100%" height="100%" fit="contain" />
           </Box>
 
           {/* Nav Items Wrapper */}
@@ -82,31 +72,13 @@ export default function Navbar({ onCreateJobClick }: NavbarProps) {
             <Box
               w={rem(613)}
               h={rem(48)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: rem(11.14),
-              }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: rem(11.14) }}
             >
-              {[
-                { label: 'Home', width: rem(102) },
-                { label: 'Find Jobs', width: rem(130) },
-                { label: 'Find Talents', width: rem(146) },
-                { label: 'About Us', width: rem(123) },
-                { label: 'Testimonials', width: rem(148) },
-              ].map((item, index) => (
+              {[{ label: 'Home' }, { label: 'Find Jobs' }, { label: 'Find Talents' }, { label: 'About Us' }, { label: 'Testimonials' }].map((item, index) => (
                 <Box
                   key={index}
-                  w={item.width}
-                  h={rem(48)}
                   px={rem(5)}
-                  style={{
-                    borderRadius: rem(12),
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+                  style={{ borderRadius: rem(12), display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <Anchor href="#" size="sm" c="gray.8" fw={500}>
                     {item.label}
@@ -134,68 +106,11 @@ export default function Navbar({ onCreateJobClick }: NavbarProps) {
                 color: 'white',
                 fontWeight: 500,
                 fontSize: rem(14),
-                overflow: 'hidden',
                 cursor: 'pointer',
-                position: 'relative',
               }}
-              onMouseEnter={(e) => {
-                const span1 = e.currentTarget.querySelector('.label-1') as HTMLElement;
-                const span2 = e.currentTarget.querySelector('.label-2') as HTMLElement;
-                if (span1 && span2) {
-                  span1.style.opacity = '0';
-                  span2.style.opacity = '1';
-                }
-              }}
-              onMouseLeave={(e) => {
-                const span1 = e.currentTarget.querySelector('.label-1') as HTMLElement;
-                const span2 = e.currentTarget.querySelector('.label-2') as HTMLElement;
-                if (span1 && span2) {
-                  span1.style.opacity = '1';
-                  span2.style.opacity = '0';
-                }
-              }}
+              onClick={onCreateJobClick}
             >
-              <Box
-  className="label-1"
-  style={{
-    position: 'absolute',
-    inset: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'opacity 0.3s',
-    opacity: 1,
-  }}
->
-  <button
-    onClick={onCreateJobClick}
-    style={{
-      background: 'transparent',
-      border: 'none',
-      color: 'inherit',
-      fontSize: 'inherit',
-      fontWeight: 'inherit',
-      cursor: 'pointer',
-    }}
-  >
-    Create Job
-  </button>
-</Box>
-
-              {/* <Box
-                className="label-2"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'opacity 0.3s',
-                  opacity: 0,
-                }}
-              >
-                Login
-              </Box> */}
+              Create Job
             </Box>
           )}
 
@@ -203,6 +118,95 @@ export default function Navbar({ onCreateJobClick }: NavbarProps) {
           {isMobile && <Burger opened={opened} onClick={toggle} aria-label="Toggle navigation" />}
         </Box>
       </Box>
+
+      {/* Filters Section */}
+      <Box
+        w="100%"
+        maw={1200}
+        mx="auto"
+        bg="white"
+        p={24}
+        mt={36}
+      >
+        <Flex
+          direction={{ base: 'column', md: 'row' }}
+          align={{ base: 'stretch', md: 'center' }}
+          justify="space-between"
+          gap={16}
+        >
+          {/* Search By Job Title */}
+          <TextInput
+            placeholder="Search by Job Title, Role"
+            w={{ base: '100%', md: 240 }}
+            leftSection={<Image src="/assets/search.png" alt="Search" width={16} height={16} />}
+            styles={{
+              input: {
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+              }
+            }}
+          />
+
+          {/* Preferred Location */}
+          <Select
+            placeholder="Preferred Location"
+            data={["Onsite", "Offsite"]}
+            w={{ base: '100%', md: 180 }}
+            leftSection={<Image src="/assets/Location.png" alt="Search" width={16} height={16} />}
+            styles={{
+              input: {
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+              }
+            }}
+          />
+
+          {/* Job Type Dropdown */}
+          <Select
+            placeholder="Job Type"
+            data={["Full-time", "Part-time", "Contract"]}
+            w={{ base: '100%', md: 180 }}
+            leftSection={<Image src="/assets/type.png" alt="Search" width={16} height={16} />}
+            styles={{
+              input: {
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+              }
+            }}
+          />
+
+          {/* Salary Filter */}
+          <Box w={{ base: '100%', md: 240 }}>
+            <Text fw={500} c="gray.8" mb={4}>Salary Range</Text>
+            <RangeSlider
+              defaultValue={[20, 60]}
+              min={0}
+              max={100}
+              step={1}
+              label={(value) => `₹${value}k`}
+              styles={{
+                thumb: {
+                  height: 16,
+                  width: 16,
+                  background: 'linear-gradient(90deg, #000000 0%, #222222 100%)',
+                  outline: 'none',
+                  boxShadow: 'none',
+                },
+                track: {
+                  background: 'linear-gradient(90deg, #000000 0%, #222222 100%)',
+                },
+                bar: {
+                  background: 'linear-gradient(90deg, #000000 0%, #222222 100%)',
+                },
+              }}
+            />
+          </Box>
+        </Flex>
+      </Box>
+      
     </Box>
   );
 }

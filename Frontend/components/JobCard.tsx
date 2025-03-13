@@ -13,8 +13,8 @@ interface JobCardProps extends Partial<JobDetails> {}
 
 export default function JobCard(job: JobCardProps) {
   // Safe salary formatting
-  const formatSalary = (min?: number, max?: number) => {
-    if (min === undefined || max === undefined || isNaN(min) || isNaN(max)) {
+  const formatSalary = (max?: number) => {
+    if (max === undefined || isNaN(max)) {
       return 'Salary not specified';
     }
 
@@ -22,19 +22,19 @@ export default function JobCard(job: JobCardProps) {
       return (num / 100000).toFixed(1) + ' LPA';
     };
 
-    return `${formatNumber(min)} - ${formatNumber(max)}`;
+    return formatNumber(max);
   };
 
   // Get time ago
-  const timeAgo = job.postedAt 
-    ? formatTimeAgo(job.postedAt) 
-    : 'Recently posted';
+  const timeAgo = job.postedAt
+  ? formatTimeAgo(job.postedAt).replace('Just now', 'Now')
+  : 'Now';
 
   // Provide default values or fallback content
   const jobTitle = job.jobTitle || 'Job Title Not Available';
-  const companyName = job.companyName || 'Company Not Specified';
-  const location = job.location || 'Location Not Specified';
-  const jobDescription = job.jobDescription || 'No description available';
+  const companyName = job.companyName ? (job.companyName.length > 5 ? `${job.companyName.slice(0, 5)}...` : job.companyName) : 'Company Not Specified'; 
+  const location = job.location ||'Location Not Specified';
+  const jobDescription = job.jobDescription ? (job.jobDescription.length > 5 ? `${job.jobDescription.slice(0, 120)}...` : job.jobDescription) : 'No description available';
 
   return (
     <Paper
@@ -51,15 +51,17 @@ export default function JobCard(job: JobCardProps) {
     >
       {/* Time Tag */}
       <Box
-        w={75}
+        w={70}
         h={33}
         style={{
           position: 'absolute',
           top: 16,
           left: 222,
           backgroundColor: '#B0D9FF',
-          padding: '7px 10px',
           borderRadius: 10,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
         <Text fz={14} fw={500} c="black">
@@ -96,11 +98,15 @@ export default function JobCard(job: JobCardProps) {
       <Text
         fw={700}
         fz={20}
-        lh={1}
+        lh={1.2}
         mt={117}
         ml={16}
         c="#000000"
-        style={{ width: 190, height: 27, textAlign: 'center' }}
+        style={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
       >
         {jobTitle}
       </Text>
@@ -128,6 +134,7 @@ export default function JobCard(job: JobCardProps) {
           <Text
             fz={16}
             fw={500}
+            truncate
             style={{ textAlign: 'center', color: '#5A5A5A' }}
           >
             {companyName}
@@ -145,6 +152,7 @@ export default function JobCard(job: JobCardProps) {
           <Text
             fz={16}
             fw={500}
+            truncate
             style={{ textAlign: 'center', color: '#5A5A5A' }}
           >
             {location}
@@ -159,14 +167,8 @@ export default function JobCard(job: JobCardProps) {
             width={17.1}
             height={13.5}
           />
-          <Text
-            fz={16}
-            fw={500}
-            style={{ textAlign: 'center', color: '#5A5A5A' }}
-          >
-            {job.salaryRange 
-              ? formatSalary(job.salaryRange.min, job.salaryRange.max) 
-              : 'Salary not specified'}
+          <Text fz={16} fw={500} style={{ textAlign: 'center', color: '#5A5A5A' }}>
+            {job.salaryRange?.max !== undefined ? formatSalary(job.salaryRange.max) : 'Salary not specified'}
           </Text>
         </Flex>
       </Flex>
@@ -190,7 +192,7 @@ export default function JobCard(job: JobCardProps) {
       >
         {jobDescription}
       </Text>
-
+        
       {/* Apply Button */}
       <Button
         fullWidth
