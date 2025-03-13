@@ -57,5 +57,5 @@ export function getDetailedTimeAgo(dateString: string | Date): string {
     return minutes === 1 ? '1 minute ago' : `${minutes} min ago`;
   }
 
-  return 'Just now';
+  return 'Now';
 }
