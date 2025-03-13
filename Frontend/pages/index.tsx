@@ -18,6 +18,7 @@ export default function Home() {
         const fetchedJobs = await jobService.getAllJobs();
         setJobs(fetchedJobs);
       } catch (error) {
+        console.error(error);
         notifications.show({
           title: 'Error',
           message: 'Failed to fetch jobs',

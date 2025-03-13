@@ -1,6 +1,10 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
 
-const API_BASE_URL = 'http://localhost:5000/api/jobs';
+
+dotenv.config();
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
+
 
 export interface JobDetails {
   _id?: string;
