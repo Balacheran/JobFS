@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://1d9a-106-51-25-220.ngrok-free.app/api/jobs';
+const API_BASE_URL = 'http://localhost:5000/api/jobs';
 
 export interface JobDetails {
   _id?: string;

@@ -7,24 +7,28 @@ import {
   Flex,
 } from '@mantine/core';
 import { JobDetails } from '@/services/jobService';
+import { formatTimeAgo } from '@/utils/timeUtils';
 
 interface JobCardProps extends Partial<JobDetails> {}
 
 export default function JobCard(job: JobCardProps) {
   // Safe salary formatting
   const formatSalary = (min?: number, max?: number) => {
-    // Check if both min and max are valid numbers
     if (min === undefined || max === undefined || isNaN(min) || isNaN(max)) {
       return 'Salary not specified';
     }
 
-    // Format number to LPA (Lakhs Per Annum)
     const formatNumber = (num: number) => {
       return (num / 100000).toFixed(1) + ' LPA';
     };
 
     return `${formatNumber(min)} - ${formatNumber(max)}`;
   };
+
+  // Get time ago
+  const timeAgo = job.postedAt 
+    ? formatTimeAgo(job.postedAt) 
+    : 'Recently posted';
 
   // Provide default values or fallback content
   const jobTitle = job.jobTitle || 'Job Title Not Available';
@@ -59,7 +63,7 @@ export default function JobCard(job: JobCardProps) {
         }}
       >
         <Text fz={14} fw={500} c="black">
-          24h Ago
+          {timeAgo}
         </Text>
       </Box>
 
