@@ -18,7 +18,8 @@ app.use(cors({
     'http://localhost:3000', // Local development
     'https://job-qcpfa8zd4-balacherans-projects.vercel.app',
     'https://job-fs-app.vercel.app',
-    'https://job-webap.vercel.app'
+    'https://job-webap.vercel.app',
+    'https://cyber-seven-phi.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
