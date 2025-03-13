@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Modal, Box, Button, TextInput, Textarea, Group, Grid, Select } from '@mantine/core';
+import jobService, { JobDetails } from '@/services/jobService';
+import { notifications } from '@mantine/notifications';
 
 interface FormValues {
   jobTitle: string;
@@ -10,21 +13,65 @@ interface FormValues {
   maxSalary: string;
   deadline: string;
   description: string;
+  requirements?: string;
+  responsibilities?: string;
 }
 
 interface CreateJobFormProps {
   opened: boolean;
   onClose: () => void;
-  onSubmit: (data: FormValues) => void;
+  onSubmit: (data: JobDetails) => void;
 }
 
-export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
-  const { control, register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({ mode: 'onChange' });
+export default function CreateJobForm({ opened, onClose, onSubmit }: CreateJobFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { control, register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({ 
+    mode: 'onChange' 
+  });
 
-  const onSubmit = (data: FormValues) => {
-    console.log('Form Data:', data);
-    reset();
-    onClose();
+  const handleFormSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      const jobData: JobDetails = {
+        jobTitle: data.jobTitle,
+        companyName: data.companyName,
+        location: data.location,
+        jobType: data.jobType,
+        salaryRange: {
+          min: Number(data.minSalary),
+          max: Number(data.maxSalary)
+        },
+        applicationDeadline: new Date(data.deadline).toISOString(),
+        jobDescription: data.description,
+        requirements: data.requirements ? [data.requirements] : [],
+        responsibilities: data.responsibilities ? [data.responsibilities] : []
+      };
+
+      const createdJob = await jobService.createJob(jobData);
+      
+      // Show success notification
+      notifications.show({
+        title: 'Job Created',
+        message: 'Job posting created successfully!',
+        color: 'green'
+      });
+
+      // Call parent component's submit handler
+      onSubmit(createdJob);
+      
+      // Reset form and close modal
+      reset();
+      onClose();
+    } catch (error: any) {
+      // Show error notification
+      notifications.show({
+        title: 'Error',
+        message: error.message || 'Failed to create job posting',
+        color: 'red'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -46,14 +93,12 @@ export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
         }
       }}
     >
-      {/* Reduced Space Above Title */}
       <Box style={{ textAlign: 'center', fontSize: '24px', fontWeight: 'bold', marginBottom: '16px', marginTop: '-10px' }}>
         Create Job Opening
       </Box>
 
-      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <form onSubmit={handleSubmit(handleFormSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <Grid gutter="md">
-          {/* Column 1 */}
           <Grid.Col span={6}>
             <TextInput
               label="Job Title"
@@ -62,7 +107,6 @@ export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
               error={errors.jobTitle?.message}
             />
 
-            {/* Company Name with Increased Height */}
             <Controller
               control={control}
               name="location"
@@ -83,21 +127,22 @@ export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
 
             <Group mt="md" grow>
               <TextInput
-                label="Salary Range"
+                label="Minimum Salary"
                 placeholder="₹0"
+                type="number"
                 {...register('minSalary', { required: 'Minimum salary is required' })}
                 error={errors.minSalary?.message}
               />
               <TextInput
-                label=" "
+                label="Maximum Salary"
                 placeholder="₹12,00,000"
+                type="number"
                 {...register('maxSalary', { required: 'Maximum salary is required' })}
                 error={errors.maxSalary?.message}
               />
             </Group>
           </Grid.Col>
 
-          {/* Column 2 */}
           <Grid.Col span={6}>
             <TextInput
               label="Company Name"
@@ -106,7 +151,6 @@ export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
               error={errors.companyName?.message}
             />
 
-            {/* Job Type with Increased Height */}
             <Controller
               control={control}
               name="jobType"
@@ -115,7 +159,7 @@ export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
                 <Select
                   label="Job Type"
                   placeholder="Select job type"
-                  data={['Full-time', 'Part-time', 'Contract']}
+                  data={['Full-time', 'Part-time', 'Contract', 'Internship']}
                   value={field.value}
                   onChange={field.onChange}
                   error={errors.jobType?.message}
@@ -135,7 +179,6 @@ export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
           </Grid.Col>
         </Grid>
 
-        {/* Job Description with Increased Height */}
         <Textarea
           label="Job Description"
           placeholder="Please share details about the role..."
@@ -145,23 +188,27 @@ export default function CreateJobForm({ opened, onClose }: CreateJobFormProps) {
           mt="md"
         />
 
-        {/* Action Buttons */}
         <Group justify="space-between" mt="md" style={{ position: 'absolute', bottom: '30px', width: 'calc(100% - 60px)' }}>
-  <Button variant="outline" color="gray" onClick={onClose} style={{ height: '48px' }}>
-    Save Draft
-  </Button>
-  <Button
-    type="submit"
-    color="blue"
-    style={{
-      height: '48px',
-      fontWeight: 'bold'
-    }}
-  >
-    Publish
-  </Button>
-</Group>
-
+          <Button 
+            variant="outline" 
+            color="gray" 
+            onClick={onClose} 
+            style={{ height: '48px' }}
+          >
+            Save Draft
+          </Button>
+          <Button
+            type="submit"
+            color="blue"
+            loading={isSubmitting}
+            style={{
+              height: '48px',
+              fontWeight: 'bold'
+            }}
+          >
+            Publish
+          </Button>
+        </Group>
       </form>
     </Modal>
   );

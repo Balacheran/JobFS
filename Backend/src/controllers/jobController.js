@@ -1,9 +1,13 @@
 const Job = require('../models/Job');
+const { catchAsync, NotFoundError, ValidationError } = require('../utils/errorHandler');
 
 class JobController {
   // Create a new job
   async createJob(req, res) {
     try {
+      // Set the postedAt time explicitly
+      req.body.postedAt = new Date();
+      
       const newJob = new Job(req.body);
       const savedJob = await newJob.save();
       
@@ -44,10 +48,11 @@ class JobController {
         };
       }
 
+      // Fetch jobs sorted by most recent
       const jobs = await Job.find(filter)
         .limit(Number(limit))
         .skip((page - 1) * limit)
-        .sort({ createdAt: -1 });
+        .sort({ postedAt: -1 }); // Sort by most recent first
 
       const total = await Job.countDocuments(filter);
 
@@ -67,28 +72,24 @@ class JobController {
   }
 
   // Get job by ID
-  async getJobById(req, res) {
-    try {
-      const job = await Job.findById(req.params.id);
-      
-      if (!job) {
-        return res.status(404).json({
-          success: false,
-          message: 'Job not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        data: job
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
+  getJobById = catchAsync(async (req, res, next) => {
+    const job = await Job.findById(req.params.id);
+    
+    // Throw custom errors
+    if (!job) {
+      throw new NotFoundError('Job');
     }
-  }
+
+    // Validate additional conditions
+    if (!job.isActive) {
+      throw new ValidationError('This job is no longer active');
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: job
+    });
+  });
 
   // Update job
   async updateJob(req, res) {

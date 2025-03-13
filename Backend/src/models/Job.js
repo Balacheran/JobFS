@@ -50,16 +50,20 @@ const JobSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  postedAt: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true
 });
 
 // Create text index for search functionality
-JobSchema.index({ 
-  jobTitle: 'text', 
-  companyName: 'text', 
-  location: 'text' 
+JobSchema.index({
+  jobTitle: 'text',
+  companyName: 'text',
+  location: 'text'
 });
 
 module.exports = mongoose.model('Job', JobSchema);

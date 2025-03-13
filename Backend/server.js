@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const jobRoutes = require('./src/routes/jobRoutes');
+const { errorHandler } = require('./src/utils/errorHandler');
 
 // Load environment variables
 dotenv.config();
@@ -11,7 +12,11 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // Add your frontend URLs
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Connect to MongoDB
@@ -27,11 +32,19 @@ app.use('/api/jobs', jobRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Unhandled Error:', err);
   res.status(500).json({
     success: false,
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.stack : {}
+    message: 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
+
+// 404 Handler
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
   });
 });
 

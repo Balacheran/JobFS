@@ -5,15 +5,37 @@ import {
   Button,
   Image,
   Flex,
-  rem,
 } from '@mantine/core';
-import {
-  IconUserPlus,
-  IconBuilding,
-  IconStack,
-} from '@tabler/icons-react';
+import { JobDetails } from '@/services/jobService';
+import { formatTimeAgo } from '@/utils/timeUtils';
 
-export default function JobCard() {
+interface JobCardProps extends Partial<JobDetails> {}
+
+export default function JobCard(job: JobCardProps) {
+  // Safe salary formatting
+  const formatSalary = (min?: number, max?: number) => {
+    if (min === undefined || max === undefined || isNaN(min) || isNaN(max)) {
+      return 'Salary not specified';
+    }
+
+    const formatNumber = (num: number) => {
+      return (num / 100000).toFixed(1) + ' LPA';
+    };
+
+    return `${formatNumber(min)} - ${formatNumber(max)}`;
+  };
+
+  // Get time ago
+  const timeAgo = job.postedAt 
+    ? formatTimeAgo(job.postedAt) 
+    : 'Recently posted';
+
+  // Provide default values or fallback content
+  const jobTitle = job.jobTitle || 'Job Title Not Available';
+  const companyName = job.companyName || 'Company Not Specified';
+  const location = job.location || 'Location Not Specified';
+  const jobDescription = job.jobDescription || 'No description available';
+
   return (
     <Paper
       w={316}
@@ -41,7 +63,7 @@ export default function JobCard() {
         }}
       >
         <Text fz={14} fw={500} c="black">
-          24h Ago
+          {timeAgo}
         </Text>
       </Box>
 
@@ -80,7 +102,7 @@ export default function JobCard() {
         c="#000000"
         style={{ width: 190, height: 27, textAlign: 'center' }}
       >
-        Full Stack Developer
+        {jobTitle}
       </Text>
 
       {/* Job Details */}
@@ -95,84 +117,79 @@ export default function JobCard() {
           height: 22,
         }}
       >
-        {/* Experience */}
+        {/* Company */}
         <Flex gap={4} align="center">
-        <Image
+          <Image
             src="/assets/Vector1.png"
-            alt="Experience Icon"
+            alt="Company Icon"
             width={17.1}
             height={13.5}
-        />
+          />
           <Text
             fz={16}
             fw={500}
             style={{ textAlign: 'center', color: '#5A5A5A' }}
           >
-            1–3 yr Exp
+            {companyName}
           </Text>
         </Flex>
 
-        {/* Onsite */}
+        {/* Location */}
         <Flex gap={4} align="center">
-        <Image
+          <Image
             src="/assets/Vector2.png"
-            alt="Experience Icon"
+            alt="Location Icon"
             width={17.1}
             height={13.5}
-        />
+          />
           <Text
             fz={16}
             fw={500}
             style={{ textAlign: 'center', color: '#5A5A5A' }}
           >
-            Onsite
+            {location}
           </Text>
         </Flex>
 
         {/* Salary */}
         <Flex gap={4} align="center">
-        <Image
+          <Image
             src="/assets/Vector3.png"
-            alt="Experience Icon"
+            alt="Salary Icon"
             width={17.1}
             height={13.5}
-        />
+          />
           <Text
             fz={16}
             fw={500}
             style={{ textAlign: 'center', color: '#5A5A5A' }}
           >
-            12LPA
+            {job.salaryRange 
+              ? formatSalary(job.salaryRange.min, job.salaryRange.max) 
+              : 'Salary not specified'}
           </Text>
         </Flex>
       </Flex>
 
       {/* Description */}
       <Text
-  component="ul" // render as <ul>
-  fz={14}
-  fw={500}
-  lh={1}
-  style={{
-    position: 'absolute',
-    top: 202,
-    left: 9,
-    width: 300,
-    height: 76,
-    color: '#555555',
-    fontFamily: 'Satoshi Variable',
-    paddingLeft: 18, // space for bullets
-    margin: 0,
-  }}
->
-  <li style={{ marginBottom: 4 }}>
-    A user-friendly interface lets you browse stunning photos and videos.
-  </li>
-  <li>
-    Filter destinations based on interests and travel style, and create personalized
-  </li>
-</Text>
-
+        component="p"
+        fz={14}
+        fw={500}
+        lh={1.5}
+        style={{
+          position: 'absolute',
+          top: 202,
+          left: 16,
+          width: 284,
+          height: 76,
+          color: '#555555',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {jobDescription}
+      </Text>
 
       {/* Apply Button */}
       <Button
